@@ -28,10 +28,10 @@
 
 
 
-<div id="mapid" style="width: 600px; height: 400px;"></div>
+<div id="map"></div>
 <script>
 
-	var mymap = L.map('mapid').setView([-27.695, -48.465], 13);
+	var map = L.map('map').setView([-27.695, -48.465], 13);
 
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 		maxZoom: 18,
@@ -40,9 +40,9 @@
 		id: 'mapbox/streets-v11',
 		tileSize: 512,
 		zoomOffset: -1
-	}).addTo(mymap);
+	}).addTo(map);
 
-	L.marker([-27.695, -48.465]).addTo(mymap)
+	L.marker([-27.695, -48.465]).addTo(map)
 		.bindPopup("<b>Hello world!</b><br />Estou na Ilha do Campeche.").openPopup();
 
 	var popup = L.popup();
@@ -51,10 +51,10 @@
 		popup
 			.setLatLng(e.latlng)
 			.setContent("You clicked the map at " + e.latlng.toString())
-			.openOn(mymap);
+			.openOn(map);
 	}
 
-	mymap.on('click', onMapClick);
+	map.on('click', onMapClick);
 
 	map.locate({setView: true, maxZoom: 16});
 
