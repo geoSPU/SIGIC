@@ -1,5 +1,4 @@
 {"type": "FeatureCollection",
-"name": "Edificacoes",
 "crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::31982"}},
 "features": [
 { "type": "Feature", "properties": { "Id": 3, "Edificação": 3.0, "Proprietár": "União", "Denominaçã": "Depósito de Gás", "Usuário": "Acompeche", "RIPs": 8105000050000.0, "Processos": "0983.008233\/82-36", "Ato_Admini": "Inscrição de Ocupação", "Situação_a": null }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 750000.16774268168956, 6934100.496444430202246 ], [ 750011.036508879624307, 6934095.231859730556607 ], [ 750009.706610901281238, 6934092.411293891258538 ], [ 750001.491574980318546, 6934094.932267930358648 ], [ 750000.16774268168956, 6934100.496444430202246 ] ] ] ] } },
