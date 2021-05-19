@@ -9,8 +9,14 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+	<!-- Add jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <!-- Add Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <script src="lib/proj4/dist/proj4.js"></script>
+  <script src="lib/proj4leaflet/src/proj4leaflet.js"></script>
 
   <style>
   body {
@@ -31,8 +37,46 @@
 <div id="map"></div>
 <script>
 
-	var map = L.map('map').setView([-27.695, -48.465], 13);
 
+var limites = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Limites.geojson",
+  dataType: "json",
+  success: console.log("Limits data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+var edificacoes = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Edificacoes.geojson",
+  dataType: "json",
+  success: console.log("Buildings data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+
+
+  /* when().done() SECTION*/
+  // Add the variable for each of your AJAX requests to $.when()
+  $.when(limites, edificacoes).done(function() {
+
+  // Adds SIRGAS2000 definition
+  proj4.defs('EPSG:31982', '+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ');
+
+  var map = L.map('map').setView([-27.695, -48.465], 13);
+
+	 var wmsLayer = L.tileLayer.wms(
+    'http://sigsc.sc.gov.br/sigserver/SIGSC/wms', {
+      maxNativeZoom: 19,
+      maxZoom: 100,
+      layers: 'OrtoRGB-Landsat-2012',
+      label: "SIG/SC",
+      iconURL: 'sig-sc.png'
+  }).addTo(map);
+
+/*
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 		maxZoom: 18,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -41,11 +85,38 @@
 		tileSize: 512,
 		zoomOffset: -1
 	}).addTo(map);
+*/
 
-	L.marker([-27.695, -48.465]).addTo(map)
-		.bindPopup("<b>Hello world!</b><br />Estou na Ilha do Campeche.").openPopup();
+  var LIMITES = L.geoJSON(limites.responseJSON, {
+    style: {
+      color: 'red',
+      weight: 2,
+      dashArray: "20 20"
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Área (ha): </b>" + feature.properties.Area_ha
+      )
+    }
+  }).addTo(map);
 
-	var popup = L.popup();
+    var EDIFICACOES = L.geoJSON(edificacoes.responseJSON, {
+    style: {
+      color: 'blue',
+      weight: 2
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Edificação: </b>" + feature.properties.Edificação + "<br>" +
+        "<b>Proprietário: </b>" + feature.properties.Proprietár + "<br>" +
+        "<b>Denominação: </b>" + feature.properties.Denominaçã + "<br>" +
+        "<b>Usuário: </b>" + feature.properties.Usuário + "<br>" +
+        "<b>RIPs: </b>" + feature.properties.RIPs + "<br>" +
+        "<b>Processo: </b>" + feature.properties.Processos + "<br>" +
+        "<b>Tipo de Ocupação: </b>" + feature.properties.Ato_Admini
+      )
+    }
+  }).addTo(map);
 
 	function onMapClick(e) {
 		popup
@@ -65,7 +136,7 @@
         .bindPopup("You are within " + radius + " meters from this point").openPopup();
 
     L.circle(e.latlng, radius).addTo(map);
-}
+  }
 
   function onLocationError(e) {
       alert(e.message);
@@ -73,6 +144,8 @@
 
   map.on('locationfound', onLocationFound);
   map.on('locationerror', onLocationError);
+
+})
 
 </script>
 
