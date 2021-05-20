@@ -7,17 +7,24 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
+  <!--
 	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+  !-->
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <link rel="stylesheet" href="lib/Leaflet.MousePosition/src/L.Control.MousePosition.css" />
 
 	<!-- Add jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
   <!-- Add Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+  <!-- Add Leaflet Plugins -->
   <script src="lib/proj4/dist/proj4.js"></script>
   <script src="lib/proj4leaflet/src/proj4leaflet.js"></script>
   <script src="https://rawgit.com/MarcChasse/leaflet.Permalink/master/leaflet.permalink.min.js"></script>
+  <script src="lib/Leaflet.MousePosition/src/L.Control.MousePosition.js"></script>
 
   <style>
   body {
@@ -279,6 +286,10 @@ var edificacoes = $.ajax({
       )
     }
   });
+
+  L.control.mousePosition({
+    position: 'bottomleft'
+  }).addTo(map);
 
   var baseLayers = {
 		"OpenTopoMap": OpenTopoMap,
