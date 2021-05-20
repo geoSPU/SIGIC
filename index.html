@@ -47,6 +47,51 @@ var limites = $.ajax({
   }
 });
 
+var zoneamento = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Zoneamento.geojson",
+  dataType: "json",
+  success: console.log("Zoning data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+var geologia = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Geologia.geojson",
+  dataType: "json",
+  success: console.log("Geology data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+var geomorfologia = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Geomorfologia.geojson",
+  dataType: "json",
+  success: console.log("Geomorfology data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+var trilhas = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Trilhas.geojson",
+  dataType: "json",
+  success: console.log("Trail data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
+var drenagem = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Drenagem.geojson",
+  dataType: "json",
+  success: console.log("Drainage data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
+
 var edificacoes = $.ajax({
   url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Edificacoes.geojson",
   dataType: "json",
@@ -60,21 +105,44 @@ var edificacoes = $.ajax({
 
   /* when().done() SECTION*/
   // Add the variable for each of your AJAX requests to $.when()
-  $.when(limites, edificacoes).done(function() {
+  $.when(limites, zoneamento, geologia, geomorfologia, trilhas, drenagem, edificacoes).done(function() {
 
   // Adds SIRGAS2000 definition
   proj4.defs('EPSG:31982', '+proj=utm +zone=22 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ');
 
-  var map = L.map('map').setView([-27.695, -48.465], 13);
+  // Basemaps
 
-	 var wmsLayer = L.tileLayer.wms(
+  var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+	  maxZoom: 17,
+	  attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+  });
+
+	var OrtofotosSDS = L.tileLayer.wms(
     'http://sigsc.sc.gov.br/sigserver/SIGSC/wms', {
       maxNativeZoom: 19,
       maxZoom: 100,
       layers: 'OrtoRGB-Landsat-2012',
       label: "SIG/SC",
       iconURL: 'sig-sc.png'
-  }).addTo(map);
+  });
+
+  var LIMITES = L.geoJSON(limites.responseJSON, {
+    style: {
+      color: 'green',
+      weight: 2
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Área (ha): </b>" + feature.properties.Area_ha
+      )
+    }
+  });
+
+  var map = L.map('map',{
+    center: [-27.695, -48.465],
+    zoom: 13,
+    layers: [OrtofotosSDS, LIMITES]
+  });
 
 /*
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
@@ -87,22 +155,23 @@ var edificacoes = $.ajax({
 	}).addTo(map);
 */
 
-  var LIMITES = L.geoJSON(limites.responseJSON, {
+  var ZONEAMENTO = L.geoJSON(zoneamento.responseJSON, {
     style: {
-      color: 'red',
-      weight: 2,
-      dashArray: "20 20"
+      color: 'yellow',
+      weight: 2
     },
     onEachFeature: function( feature, layer ){
       layer.bindPopup(
-        "<b>Área (ha): </b>" + feature.properties.Area_ha
+        "<b>Área: </b>" + feature.properties.Area_12 + "<br>" +
+        "<b>Zona: </b>" + feature.properties.Zona_12 + "<br>" +
+        "<b>Descrição: </b>" + feature.properties.Descr_1
       )
     }
   }).addTo(map);
 
-    var EDIFICACOES = L.geoJSON(edificacoes.responseJSON, {
+  var EDIFICACOES = L.Proj.geoJson(edificacoes.responseJSON, {
     style: {
-      color: 'blue',
+      color: 'red',
       weight: 2
     },
     onEachFeature: function( feature, layer ){
@@ -117,6 +186,68 @@ var edificacoes = $.ajax({
       )
     }
   }).addTo(map);
+
+
+  var DRENAGEM = L.geoJSON(drenagem.responseJSON, {
+    style: {
+      color: 'blue',
+      weight: 2
+    }
+  }).addTo(map);
+
+  var TRILHAS = L.geoJSON(trilhas.responseJSON, {
+    style: {
+      color: 'brown',
+      weight: 3
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Nome: </b>" + feature.properties.Name
+      )
+    }
+  }).addTo(map);
+
+  var GEOLOGIA = L.Proj.geoJson(geologia.responseJSON, {
+    style: {
+      color: 'grey',
+      weight: 3
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Nome: </b>" + feature.properties.Tipo
+      )
+    }
+  });
+
+  var GEOMORFOLOGIA = L.geoJSON(geomorfologia.responseJSON, {
+    style: {
+      color: 'white',
+      weight: 3
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Tipo: </b>" + feature.properties.Tipo_12
+      )
+    }
+  });
+
+  var baseLayers = {
+		"OpenTopoMap": OpenTopoMap,
+		"Ortofotos SDS 2012": OrtofotosSDS
+	};
+
+	var overlays = {
+		"Limites": LIMITES,
+		"Zoneamento": ZONEAMENTO,
+		"Geologia": GEOLOGIA,
+		"Geomorfologia": GEOMORFOLOGIA,
+		"Edificações": EDIFICACOES,
+	  "Drenagem": DRENAGEM,
+	  "Trilhas": TRILHAS
+	};
+
+	L.control.layers(baseLayers, overlays).addTo(map);
+
 
 	function onMapClick(e) {
 		popup
