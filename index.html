@@ -13,6 +13,7 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
   <link rel="stylesheet" href="lib/Leaflet.MousePosition/src/L.Control.MousePosition.css" />
+  <link rel="stylesheet" href="lib/leaflet-minimap/dist/Control.MiniMap.min.css" />
 
 	<!-- Add jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -25,6 +26,7 @@
   <script src="lib/proj4leaflet/src/proj4leaflet.js"></script>
   <script src="https://rawgit.com/MarcChasse/leaflet.Permalink/master/leaflet.permalink.min.js"></script>
   <script src="lib/Leaflet.MousePosition/src/L.Control.MousePosition.js"></script>
+  <script src="lib/leaflet-minimap/dist/Control.MiniMap.min.js"></script>
 
   <style>
   body {
@@ -146,6 +148,11 @@ var edificacoes = $.ajax({
 	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
   });
 
+  var Esri_NatGeoWorldMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+	maxZoom: 16
+  });
+
   var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 	subdomains: 'abcd',
@@ -179,6 +186,7 @@ var edificacoes = $.ajax({
   var map = L.map('map',{
     center: mappos.center,
     zoom: mappos.zoom,
+    zoomControl: false,
     layers: [Esri_WorldImagery, LIMITES]
   });
 
@@ -286,6 +294,13 @@ var edificacoes = $.ajax({
       )
     }
   });
+
+  var miniMap = new L.Control.MiniMap(Esri_NatGeoWorldMap, {
+      position: 'topleft',
+      toggleDisplay: true,
+      zoomLevelOffset: -6
+    }
+  ).addTo(map);
 
   L.control.mousePosition({
     position: 'bottomleft'
