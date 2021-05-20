@@ -17,6 +17,7 @@
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
   <script src="lib/proj4/dist/proj4.js"></script>
   <script src="lib/proj4leaflet/src/proj4leaflet.js"></script>
+  <script src="https://rawgit.com/MarcChasse/leaflet.Permalink/master/leaflet.permalink.min.js"></script>
 
   <style>
   body {
@@ -126,6 +127,26 @@ var edificacoes = $.ajax({
       iconURL: 'sig-sc.png'
   });
 
+  var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  });
+
+  var Stamen_Watercolor = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	subdomains: 'abcd',
+	minZoom: 1,
+	maxZoom: 16,
+	ext: 'jpg'
+  });
+
+  var Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	subdomains: 'abcd',
+	minZoom: 0,
+	maxZoom: 20,
+	ext: 'png'
+  });
+
   var LIMITES = L.geoJSON(limites.responseJSON, {
     style: {
       color: 'green',
@@ -138,11 +159,15 @@ var edificacoes = $.ajax({
     }
   });
 
+  var mappos = L.Permalink.getMapLocation(zoom = 13, center = [-27.695, -48.465]);
+
   var map = L.map('map',{
-    center: [-27.695, -48.465],
-    zoom: 13,
-    layers: [OrtofotosSDS, LIMITES]
+    center: mappos.center,
+    zoom: mappos.zoom,
+    layers: [Esri_WorldImagery, LIMITES]
   });
+
+  L.Permalink.setup(map);
 
 /*
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
@@ -233,6 +258,9 @@ var edificacoes = $.ajax({
 
   var baseLayers = {
 		"OpenTopoMap": OpenTopoMap,
+		"Esri Satélite": Esri_WorldImagery,
+		"Aquarela (Stamen)": Stamen_Watercolor,
+		"Rótulos (Stamen)": Stamen_Terrain,
 		"Ortofotos SDS 2012": OrtofotosSDS
 	};
 
