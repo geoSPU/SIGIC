@@ -2,7 +2,7 @@
 <html>
 <head>
 
-	<title>Quick Start - Leaflet</title>
+	<title>SIGIC - Sistema de Informação Geográfica da Ilha do Campeche</title>
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -226,9 +226,9 @@ var edificacoes = $.ajax({
       weight: 3
     },
     onEachFeature: function( feature, layer ){
-      layer.bindPopup(
-        "<b>Nome: </b>" + feature.properties.Name
-      )
+      layer.bindPopup("<b>Nome: </b>" + feature.properties.Name);
+      layer.on('mouseover', function() { layer.openPopup(); });
+      layer.on('mouseout', function() { layer.closePopup(); });
     }
   }).addTo(map);
 
