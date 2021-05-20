@@ -38,6 +38,14 @@
 <div id="map"></div>
 <script>
 
+var arqueologia = $.ajax({
+  url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Arqueologia.geojson",
+  dataType: "json",
+  success: console.log("Archeology data successfully loaded."),
+  error: function (xhr) {
+    alert(xhr.statusText);
+  }
+});
 
 var limites = $.ajax({
   url:"https://raw.githubusercontent.com/geoSPU/SIGIC/master/Limites.geojson",
@@ -179,6 +187,22 @@ var edificacoes = $.ajax({
 		zoomOffset: -1
 	}).addTo(map);
 */
+  var ARQUEOLOGIA = L.Proj.geoJson(arqueologia.responseJSON, {
+    style: {
+      color: 'yellow',
+      weight: 2
+    },
+    onEachFeature: function( feature, layer ){
+      layer.bindPopup(
+        "<b>Nome: </b>" + feature.properties.Nome + "<br>" +
+        "<b>Coordenadas: </b> (" + feature.properties.E + ", " +
+                                  feature.properties.N + ")<br>" +
+        "<b>Classe: </b>" + feature.properties.Classe + "<br>" +
+        "<b>Número: </b>" + feature.properties.Número + "<br>" +
+        "<b>Tipo: </b>" + feature.properties.Tipo + "<br>"
+      )
+    }
+  });
 
   var ZONEAMENTO = L.geoJSON(zoneamento.responseJSON, {
     style: {
@@ -267,6 +291,7 @@ var edificacoes = $.ajax({
 	var overlays = {
 		"Limites": LIMITES,
 		"Zoneamento": ZONEAMENTO,
+		"Arqueologia": ARQUEOLOGIA,
 		"Geologia": GEOLOGIA,
 		"Geomorfologia": GEOMORFOLOGIA,
 		"Edificações": EDIFICACOES,
